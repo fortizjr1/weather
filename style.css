@@ -106,15 +106,17 @@ button:hover {
 /* Header Row for Location and Toggle */
 .header-row {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
     margin-bottom: 20px;
+    gap: 10px;
 }
 
 .header-row h2 {
     margin: 0;
-    text-align: left;
-    font-size: 20px;
+    text-align: center;
+    font-size: 24px;
     font-weight: 600;
 }
 
@@ -216,11 +218,22 @@ button:hover {
 .forecast-item {
     background: var(--element-background);
     border-radius: 10px;
+    padding: 0; /* Reset padding for inner elements */
+    border-bottom: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    overflow: hidden; /* Ensure rounded corners */
+}
+
+.forecast-item:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+.forecast-summary {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 15px;
-    border-bottom: none;
 }
 
 .forecast-item:last-child {
@@ -258,6 +271,25 @@ button:hover {
 .min-temp {
     color: var(--text-secondary);
     font-size: 0.9em;
+}
+
+/* Forecast Details (Hidden by default) */
+.forecast-details {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.detail-row:last-child {
+    margin-bottom: 0;
 }
 
 #refresh-btn {

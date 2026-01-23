@@ -97,6 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const current = data.current;
         const daily = data.daily;
 
+        if (!current || !daily) {
+            console.error('Incomplete weather data', data);
+            return;
+        }
+
         // Update Location
         document.getElementById('location-name').textContent = locationName;
 
@@ -117,8 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
         iconEl.classList.remove('hidden');
 
         // Update Sunrise/Sunset
-        document.getElementById('sunrise-time').textContent = formatTimeISO(daily.sunrise[0]);
-        document.getElementById('sunset-time').textContent = formatTimeISO(daily.sunset[0]);
+        const sunriseTime = daily.sunrise ? formatTimeISO(daily.sunrise[0]) : '--:--';
+        const sunsetTime = daily.sunset ? formatTimeISO(daily.sunset[0]) : '--:--';
+        document.getElementById('sunrise-time').textContent = sunriseTime;
+        document.getElementById('sunset-time').textContent = sunsetTime;
 
         // Update Extra Details
         document.getElementById('humidity').textContent = `${current.relative_humidity_2m}%`;
@@ -143,37 +150,64 @@ document.addEventListener('DOMContentLoaded', () => {
         const forecastList = document.getElementById('forecast-list');
         forecastList.innerHTML = ''; // Clear existing
 
-        // Daily arrays are aligned by index. We want the next 7 days (including today or starting tomorrow?)
-        // Open-Meteo returns 7 days starting today by default.
-        // Let's show all 7 days returned.
-        
+        if (!daily.time) return;
+
         for (let i = 0; i < daily.time.length; i++) {
             const dateStr = daily.time[i];
             const maxTempC = daily.temperature_2m_max[i];
             const minTempC = daily.temperature_2m_min[i];
             const code = daily.weather_code[i];
             
+            // New data fields (with safety checks)
+            const precipProb = daily.precipitation_probability_max ? daily.precipitation_probability_max[i] : 0;
+            const windSpeedMax = daily.wind_speed_10m_max ? daily.wind_speed_10m_max[i] : 0;
+            const sunrise = daily.sunrise ? formatTimeISO(daily.sunrise[i]) : '--:--';
+            const sunset = daily.sunset ? formatTimeISO(daily.sunset[i]) : '--:--';
+            
             // Format Day Name
             const date = new Date(dateStr);
-            const dayName = date.toLocaleDateString('en-US', { weekday: 'long' }); // e.g., Monday
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
             
             // Format Temps
             const maxTemp = formatTemp(maxTempC);
             const minTemp = formatTemp(minTempC);
 
+            // Format Wind
+            const windDisplay = isCelsius ? `${Math.round(windSpeedMax)} km/h` : `${Math.round(windSpeedMax * 0.621371)} mph`;
+
             // Icon
-            const iconCode = mapWmoToOwmIcon(code, 1); // Assume day icon for forecast
-            const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`; // Small icon
+            const iconCode = mapWmoToOwmIcon(code, 1);
+            const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
 
             const item = document.createElement('div');
             item.className = 'forecast-item';
+            
+            // Make the item clickable
+            item.onclick = function() {
+                const details = this.querySelector('.forecast-details');
+                details.classList.toggle('hidden');
+                this.classList.toggle('expanded');
+            };
+
             item.innerHTML = `
-                <div class="forecast-day">${dayName}</div>
-                <div class="forecast-icon">
-                    <img src="${iconUrl}" alt="Icon">
+                <div class="forecast-summary">
+                    <div class="forecast-day">${dayName}</div>
+                    <div class="forecast-icon">
+                        <img src="${iconUrl}" alt="Icon">
+                    </div>
+                    <div class="forecast-temp">
+                        ${maxTemp}° <span class="min-temp">${minTemp}°</span>
+                    </div>
                 </div>
-                <div class="forecast-temp">
-                    ${maxTemp}° <span class="min-temp">${minTemp}°</span>
+                <div class="forecast-details hidden">
+                    <div class="detail-row">
+                        <span>Rain: ${precipProb}%</span>
+                        <span>Wind: ${windDisplay}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Sunrise: ${sunrise}</span>
+                        <span>Sunset: ${sunset}</span>
+                    </div>
                 </div>
             `;
             forecastList.appendChild(item);
