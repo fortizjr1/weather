@@ -5,16 +5,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const weatherDataEl = document.getElementById('weather-data');
     const refreshBtn = document.getElementById('refresh-btn');
     const unitToggleBtn = document.getElementById('unit-toggle');
+    const locationInput = document.getElementById('location-input');
+    const searchBtn = document.getElementById('search-btn');
+    const currentLocationBtn = document.getElementById('current-location-btn');
 
     let isCelsius = false; // Default to Fahrenheit
     let currentWeatherData = null;
     let currentLocationName = '';
 
-    // Initialize the app
-    initApp();
+    // Initialize the app (Setup listeners only)
+    // initApp(); // Do not auto-fetch location
 
-    refreshBtn.addEventListener('click', initApp);
+    refreshBtn.addEventListener('click', () => {
+        if (currentWeatherData && currentLocationName) {
+            // Re-fetch with last known coordinates
+            // But we don't have them stored globally easily without modifying updateUI
+            // For now, re-init (current location) or re-search could be better
+            // Let's just re-init current location for simplicity or keep existing behavior
+            initApp(); 
+        } else {
+            initApp();
+        }
+    });
     unitToggleBtn.addEventListener('click', toggleUnit);
+    
+    // Search Events
+    searchBtn.addEventListener('click', handleSearch);
+    locationInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSearch();
+    });
+    currentLocationBtn.addEventListener('click', initApp);
 
     function toggleUnit() {
         isCelsius = !isCelsius;
@@ -23,7 +43,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function handleSearch() {
+        const query = locationInput.value.trim();
+        if (!query) return;
+
+        showLoading();
+        hideError();
+        weatherDataEl.classList.add('hidden');
+
+        try {
+            const coords = await fetchCoordinates(query);
+            if (!coords) {
+                throw new Error('Location not found. Please try again.');
+            }
+            
+            const { lat, lon, name } = coords;
+            
+            // Fetch weather for found coordinates
+            const weatherData = await fetchWeatherData(lat, lon);
+            
+            currentWeatherData = weatherData;
+            currentLocationName = name; // Use name from geocoding
+            updateUI(weatherData, name);
+        } catch (error) {
+            showError(error.message);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async function fetchCoordinates(query) {
+        // Nominatim Search (Forward Geocoding)
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+        
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'SimpleWeatherApp/1.0'
+            }
+        });
+        
+        if (!response.ok) throw new Error('Geocoding service unavailable.');
+        
+        const data = await response.json();
+        
+        if (data.length === 0) return null;
+        
+        const result = data[0];
+        return {
+            lat: result.lat,
+            lon: result.lon,
+            name: result.display_name.split(',')[0] // Get just the city/place name
+        };
+    }
+
     function initApp() {
+        locationInput.value = ''; // Clear input when using current location
         showLoading();
         hideError();
         weatherDataEl.classList.add('hidden');
@@ -291,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showLoading() {
         loadingEl.classList.remove('hidden');
+        document.getElementById('welcome-message').classList.add('hidden');
     }
 
     function hideLoading() {

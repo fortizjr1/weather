@@ -34,8 +34,20 @@
         </header>
 
         <main>
+            <div class="search-container">
+                <div class="input-wrapper">
+                    <input type="text" id="location-input" placeholder="Enter city, state">
+                    <button id="current-location-btn" title="Use My Location">📍</button>
+                </div>
+                <button id="search-btn">Search</button>
+            </div>
+
             <div id="weather-container">
-                <div class="loading" id="loading">
+                <div id="welcome-message" class="welcome-message">
+                    <p>Enter a city or use your current location to get the weather.</p>
+                </div>
+
+                <div class="loading hidden" id="loading">
                     <div class="spinner"></div>
                     <p>Detecting location and fetching weather...</p>
                 </div>

@@ -103,6 +103,53 @@ button:hover {
     margin-bottom: 15px;
 }
 
+/* Search Container */
+.search-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+#location-input {
+    flex: 1;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 2px solid var(--element-background);
+    background: var(--element-background);
+    color: var(--text-color);
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#location-input:focus {
+    border-color: #667eea;
+}
+
+#search-btn, #current-location-btn {
+    padding: 10px 15px;
+    box-shadow: none;
+    font-size: 14px;
+}
+
+#current-location-btn {
+    background: var(--element-background);
+    font-size: 18px;
+    padding: 10px 12px;
+}
+
+#current-location-btn:hover {
+    background: var(--primary-gradient);
+    transform: translateY(-2px);
+}
+
 /* Header Row for Location and Toggle */
 .header-row {
     display: flex;
@@ -307,4 +354,13 @@ button:hover {
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
+}
+
+.welcome-message {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 40px 20px;
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
 }
