@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Weather App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Weather App</h1>
+        </header>
+
+        <main>
+            <div id="weather-container">
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Detecting location and fetching weather...</p>
+                </div>
+
+                <div id="error-message" class="hidden"></div>
+
+                <div id="weather-data" class="hidden">
+                    <div class="header-row">
+                        <h2 id="location-name">Location</h2>
+                        <button id="unit-toggle" class="unit-toggle" aria-label="Toggle Unit">°C / °F</button>
+                    </div>
+                    <div class="current-weather">
+                        <img id="weather-icon" src="" alt="Weather Icon" class="hidden">
+                        <p id="temperature" class="temp">--°C</p>
+                        <p id="description" class="desc">--</p>
+                    </div>
+                    
+                    <div class="details">
+                        <div class="detail-item">
+                            <span class="label">Sunrise</span>
+                            <span id="sunrise-time" class="value">--:--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Sunset</span>
+                            <span id="sunset-time" class="value">--:--</span>
+                        </div>
+                    </div>
+
+                    <div class="extra-details">
+                        <div class="detail-item">
+                            <span class="label">Humidity</span>
+                            <span id="humidity" class="value">--%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Wind</span>
+                            <span id="wind-speed" class="value">-- km/h</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Feels Like</span>
+                            <span id="feels-like" class="value">--°</span>
+                        </div>
+                    </div>
+
+                    <div class="forecast-section">
+                        <h3>7-Day Forecast</h3>
+                        <div id="forecast-list" class="forecast-list">
+                            <!-- Forecast items will be injected here -->
+                        </div>
+                    </div>
+                    
+                    <button id="refresh-btn">Refresh</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
