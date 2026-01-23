@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchWeatherData(lat, lon) {
         // Open-Meteo API
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day,relative_humidity_2m,apparent_temperature,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day,relative_humidity_2m,apparent_temperature,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,weather_code,is_day&timezone=auto`;
         
         const response = await fetch(url);
         if (!response.ok) {
@@ -170,8 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUI(data, locationName) {
         const current = data.current;
         const daily = data.daily;
+        const hourly = data.hourly;
 
-        if (!current || !daily) {
+        if (!current || !daily || !hourly) {
             console.error('Incomplete weather data', data);
             return;
         }
@@ -213,11 +214,69 @@ document.addEventListener('DOMContentLoaded', () => {
         const feelsLikeC = current.apparent_temperature;
         document.getElementById('feels-like').textContent = `${formatTemp(feelsLikeC)}°`;
 
+        // Rain Chance (Today's max probability)
+        const rainChance = daily.precipitation_probability_max ? daily.precipitation_probability_max[0] : 0;
+        document.getElementById('rain-chance').textContent = `${rainChance}%`;
+
+        // UV Index
+        const uvIndex = daily.uv_index_max ? daily.uv_index_max[0] : 0;
+        document.getElementById('uv-index').textContent = uvIndex;
+
+        // Render Hourly Forecast (Every 3 Hours)
+        renderHourlyForecast(hourly);
+
         // Render Forecast
         renderForecast(daily);
 
         // Show data
         weatherDataEl.classList.remove('hidden');
+    }
+
+    function renderHourlyForecast(hourly) {
+        const hourlyList = document.getElementById('hourly-list');
+        hourlyList.innerHTML = ''; // Clear existing
+
+        const now = new Date();
+        const currentHour = now.getHours();
+        
+        // Find the index of the current hour or next hour in the hourly data
+        let startIndex = 0;
+        for (let i = 0; i < hourly.time.length; i++) {
+            const time = new Date(hourly.time[i]);
+            if (time >= now) {
+                startIndex = i;
+                break;
+            }
+        }
+
+        // Display next 24 hours (8 items * 3 hours)
+        let count = 0;
+        for (let i = startIndex; i < hourly.time.length && count < 8; i += 3) {
+            const timeStr = hourly.time[i];
+            const tempC = hourly.temperature_2m[i];
+            const code = hourly.weather_code[i];
+            const isDay = hourly.is_day[i];
+
+            const time = new Date(timeStr);
+            const hourDisplay = time.toLocaleTimeString([], { hour: 'numeric', hour12: true });
+
+            const temp = formatTemp(tempC);
+            const iconCode = mapWmoToOwmIcon(code, isDay);
+            const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
+
+            const item = document.createElement('div');
+            item.className = 'hourly-item';
+            
+            item.innerHTML = `
+                <div class="hourly-time">${hourDisplay}</div>
+                <div class="hourly-icon">
+                    <img src="${iconUrl}" alt="Icon">
+                </div>
+                <div class="hourly-temp">${temp}°</div>
+            `;
+            hourlyList.appendChild(item);
+            count++;
+        }
     }
 
     function renderForecast(daily) {

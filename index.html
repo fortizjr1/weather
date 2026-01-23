@@ -61,9 +61,10 @@
                         <img id="weather-icon" src="" alt="Weather Icon" class="hidden">
                         <p id="temperature" class="temp">--°C</p>
                         <p id="description" class="desc">--</p>
+                        <p class="feels-like-text">Feels like <span id="feels-like">--°</span></p>
                     </div>
                     
-                    <div class="details">
+                    <div class="details-grid">
                         <div class="detail-item">
                             <span class="label">Sunrise</span>
                             <span id="sunrise-time" class="value">--:--</span>
@@ -72,9 +73,6 @@
                             <span class="label">Sunset</span>
                             <span id="sunset-time" class="value">--:--</span>
                         </div>
-                    </div>
-
-                    <div class="extra-details">
                         <div class="detail-item">
                             <span class="label">Humidity</span>
                             <span id="humidity" class="value">--%</span>
@@ -84,8 +82,19 @@
                             <span id="wind-speed" class="value">-- km/h</span>
                         </div>
                         <div class="detail-item">
-                            <span class="label">Feels Like</span>
-                            <span id="feels-like" class="value">--°</span>
+                            <span class="label">Rain Chance</span>
+                            <span id="rain-chance" class="value">--%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">UV Index</span>
+                            <span id="uv-index" class="value">--</span>
+                        </div>
+                    </div>
+
+                    <div class="forecast-section">
+                        <h3>Hourly Forecast (3-Hour Intervals)</h3>
+                        <div id="hourly-list" class="hourly-list">
+                            <!-- Hourly items will be injected here -->
                         </div>
                     </div>
 
