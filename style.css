@@ -42,10 +42,13 @@ body {
 .container::-webkit-scrollbar {
     display: none;
 }
+
 /* Hide scrollbar for IE, Edge and Firefox */
 .container {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
 }
 
 header h1 {
@@ -91,8 +94,13 @@ button:hover {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 #error-message {
@@ -123,7 +131,8 @@ button:hover {
     transition: border-color 0.2s;
 }
 
-#search-btn, #current-location-btn {
+#search-btn,
+#current-location-btn {
     padding: 10px 15px;
     box-shadow: none;
     font-size: 16px;
@@ -177,27 +186,56 @@ button:hover {
 }
 
 .current-weather {
-    margin: 30px 0;
+    margin: 40px 0;
+    /* Increase vertical spacing */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Add gap between elements */
+    align-items: center;
+    /* Center elements horizontally */
+}
+
+#weather-icon {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+    /* Add subtle shadow to pop */
 }
 
 .temp {
-    font-size: 56px;
-    font-weight: bold;
-    margin: 10px 0;
-    text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    font-size: 64px;
+    /* Slightly larger */
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    /* Add bottom margin */
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    line-height: 1;
+    /* Tighter line height for the big number */
+}
+
+.high-low {
+    font-size: 18px;
+    color: var(--text-color);
+    font-weight: 500;
+    opacity: 0.9;
 }
 
 .desc {
-    font-size: 18px;
+    font-size: 20px;
+    /* Increase size */
     text-transform: capitalize;
     color: var(--text-secondary);
+    font-weight: 500;
+    margin-top: 4px;
 }
 
 .feels-like-text {
-    font-size: 16px;
+    font-size: 14px;
+    /* Make slightly smaller to de-emphasize */
     color: var(--text-secondary);
-    margin-top: 5px;
-    font-weight: 500;
+    opacity: 0.8;
 }
 
 .details-grid {
@@ -240,14 +278,17 @@ button:hover {
     display: flex;
     overflow-x: auto;
     gap: 15px;
-    padding-bottom: 10px; /* Space for scrollbar */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    padding-bottom: 10px;
+    /* Space for scrollbar */
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling on iOS */
 }
 
 /* Custom scrollbar for hourly list */
 .hourly-list::-webkit-scrollbar {
     height: 6px;
-    display: block; /* Show scrollbar here specifically */
+    display: block;
+    /* Show scrollbar here specifically */
 }
 
 .hourly-list::-webkit-scrollbar-track {
@@ -266,7 +307,8 @@ button:hover {
     border-radius: 10px;
     min-width: 80px;
     text-align: center;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
+    /* Prevent shrinking */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -314,11 +356,13 @@ button:hover {
 .forecast-item {
     background: var(--element-background);
     border-radius: 10px;
-    padding: 0; /* Reset padding for inner elements */
+    padding: 0;
+    /* Reset padding for inner elements */
     border-bottom: none;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    overflow: hidden; /* Ensure rounded corners */
+    overflow: hidden;
+    /* Ensure rounded corners */
 }
 
 .forecast-item:hover {
