@@ -16,7 +16,7 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     display: flex;
@@ -355,25 +355,24 @@ button:hover {
 
 .forecast-item {
     background: var(--element-background);
-    border-radius: 10px;
-    padding: 0;
-    /* Reset padding for inner elements */
-    border-bottom: none;
+    border-radius: 12px;
+    padding: 2px 0;
+    margin-bottom: 8px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
-    overflow: hidden;
-    /* Ensure rounded corners */
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .forecast-item:hover {
-    background-color: rgba(102, 126, 234, 0.1);
+    background-color: rgba(102, 126, 234, 0.15);
+    transform: translateX(4px);
 }
 
 .forecast-summary {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 15px;
+    padding: 16px 20px;
 }
 
 .forecast-item:last-child {

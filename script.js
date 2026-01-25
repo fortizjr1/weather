@@ -5,8 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const weatherDataEl = document.getElementById('weather-data');
     const refreshBtn = document.getElementById('refresh-btn');
     const unitToggleBtn = document.getElementById('unit-toggle');
-    const locationInput = document.getElementById('location-input');
-    const searchBtn = document.getElementById('search-btn');
     const currentLocationBtn = document.getElementById('current-location-btn');
 
     let isCelsius = false; // Default to Fahrenheit
@@ -30,10 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     unitToggleBtn.addEventListener('click', toggleUnit);
 
     // Search Events
-    searchBtn.addEventListener('click', handleSearch);
-    locationInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSearch();
-    });
     currentLocationBtn.addEventListener('click', initApp);
 
     function toggleUnit() {
@@ -43,61 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function handleSearch() {
-        const query = locationInput.value.trim();
-        if (!query) return;
 
-        showLoading();
-        hideError();
-        weatherDataEl.classList.add('hidden');
-
-        try {
-            const coords = await fetchCoordinates(query);
-            if (!coords) {
-                throw new Error('Location not found. Please try again.');
-            }
-
-            const { lat, lon, name } = coords;
-
-            // Fetch weather for found coordinates
-            const weatherData = await fetchWeatherData(lat, lon);
-
-            currentWeatherData = weatherData;
-            currentLocationName = name; // Use name from geocoding
-            updateUI(weatherData, name);
-        } catch (error) {
-            showError(error.message);
-        } finally {
-            hideLoading();
-        }
-    }
-
-    async function fetchCoordinates(query) {
-        // Nominatim Search (Forward Geocoding)
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
-
-        const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'SimpleWeatherApp/1.0'
-            }
-        });
-
-        if (!response.ok) throw new Error('Geocoding service unavailable.');
-
-        const data = await response.json();
-
-        if (data.length === 0) return null;
-
-        const result = data[0];
-        return {
-            lat: result.lat,
-            lon: result.lon,
-            name: result.display_name.split(',')[0] // Get just the city/place name
-        };
-    }
 
     function initApp() {
-        locationInput.value = ''; // Clear input when using current location
         showLoading();
         hideError();
         weatherDataEl.classList.add('hidden');
@@ -136,7 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchWeatherData(lat, lon) {
         // Open-Meteo API
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day,relative_humidity_2m,apparent_temperature,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,weather_code,is_day&timezone=auto&forecast_days=6`;
+        // forecasting 8 days to ensure we have 5 days starting from day after tomorrow
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day,relative_humidity_2m,apparent_temperature,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,weather_code,is_day&timezone=auto&forecast_days=8`;
 
         const response = await fetch(url);
         if (!response.ok) {
@@ -144,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return await response.json();
     }
+
 
     async function fetchLocationName(lat, lon) {
         // Nominatim Reverse Geocoding (OpenStreetMap)
@@ -291,19 +235,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!daily.time) return;
 
         // Get today's date as YYYY-MM-DD string in local time
+        // Get tomorrow's date for filtering
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const todayStr = `${year}-${month}-${day}`;
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate() + 1);
+
+        const tYear = tomorrow.getFullYear();
+        const tMonth = String(tomorrow.getMonth() + 1).padStart(2, '0');
+        const tDay = String(tomorrow.getDate()).padStart(2, '0');
+        const tomorrowStr = `${tYear}-${tMonth}-${tDay}`;
 
         let count = 0;
 
         for (let i = 0; i < daily.time.length; i++) {
             const dateStr = daily.time[i];
 
-            // Exclude everything up to and including today to show "Next 5 Days"
-            if (dateStr <= todayStr) {
+            // Exclude everything up to and including tomorrow to show "Next 5 Days" starting from day after tomorrow
+            if (dateStr <= tomorrowStr) {
                 continue;
             }
 
@@ -350,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <img src="${iconUrl}" alt="Icon">
                     </div>
                     <div class="forecast-temp">
-                        ${maxTemp}° <span class="min-temp">${minTemp}°</span>
+                        H: ${maxTemp}° <span class="min-temp">L: ${minTemp}°</span>
                     </div>
                 </div>
                 <div class="forecast-details hidden">
