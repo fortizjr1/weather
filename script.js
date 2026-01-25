@@ -22,13 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // But we don't have them stored globally easily without modifying updateUI
             // For now, re-init (current location) or re-search could be better
             // Let's just re-init current location for simplicity or keep existing behavior
-            initApp(); 
+            initApp();
         } else {
             initApp();
         }
     });
     unitToggleBtn.addEventListener('click', toggleUnit);
-    
+
     // Search Events
     searchBtn.addEventListener('click', handleSearch);
     locationInput.addEventListener('keypress', (e) => {
@@ -56,12 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!coords) {
                 throw new Error('Location not found. Please try again.');
             }
-            
+
             const { lat, lon, name } = coords;
-            
+
             // Fetch weather for found coordinates
             const weatherData = await fetchWeatherData(lat, lon);
-            
+
             currentWeatherData = weatherData;
             currentLocationName = name; // Use name from geocoding
             updateUI(weatherData, name);
@@ -75,19 +75,19 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchCoordinates(query) {
         // Nominatim Search (Forward Geocoding)
         const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
-        
+
         const response = await fetch(url, {
             headers: {
                 'User-Agent': 'SimpleWeatherApp/1.0'
             }
         });
-        
+
         if (!response.ok) throw new Error('Geocoding service unavailable.');
-        
+
         const data = await response.json();
-        
+
         if (data.length === 0) return null;
-        
+
         const result = data[0];
         return {
             lat: result.lat,
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchWeatherData(lat, lon) {
         // Open-Meteo API
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day,relative_humidity_2m,apparent_temperature,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,weather_code,is_day&timezone=auto&forecast_days=6`;
-        
+
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error('Weather API not available.');
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchLocationName(lat, lon) {
         // Nominatim Reverse Geocoding (OpenStreetMap)
         const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-        
+
         try {
             const response = await fetch(url, {
                 headers: {
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (!response.ok) return 'Unknown Location';
             const data = await response.json();
-            
+
             // Try to find a suitable name: city, town, village, or suburb
             const addr = data.address;
             return addr.city || addr.town || addr.village || addr.suburb || addr.county || 'Your Location';
@@ -184,13 +184,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const tempC = current.temperature_2m;
         const tempDisplay = formatTemp(tempC);
         const unitDisplay = isCelsius ? '°C' : '°F';
-        
+
         document.getElementById('temperature').textContent = `${tempDisplay}${unitDisplay}`;
-        
+
+        // Update High/Low
+        const todayMax = formatTemp(daily.temperature_2m_max[0]);
+        const todayMin = formatTemp(daily.temperature_2m_min[0]);
+        document.getElementById('high-low').textContent = `H: ${todayMax}° L: ${todayMin}°`;
+
         // Update Description & Icon
         const weatherInfo = getWeatherDescription(current.weather_code, current.is_day);
         document.getElementById('description').textContent = weatherInfo.description;
-        
+
         const iconCode = mapWmoToOwmIcon(current.weather_code, current.is_day);
         const iconEl = document.getElementById('weather-icon');
         iconEl.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
@@ -204,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update Extra Details
         document.getElementById('humidity').textContent = `${current.relative_humidity_2m}%`;
-        
+
         // Wind Speed (API returns km/h)
         const windKmh = current.wind_speed_10m;
         const windDisplay = isCelsius ? `${Math.round(windKmh)} km/h` : `${Math.round(windKmh * 0.621371)} mph`;
@@ -238,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const now = new Date();
         const currentHour = now.getHours();
-        
+
         // Find the index of the current hour or next hour in the hourly data
         let startIndex = 0;
         for (let i = 0; i < hourly.time.length; i++) {
@@ -266,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const item = document.createElement('div');
             item.className = 'hourly-item';
-            
+
             item.innerHTML = `
                 <div class="hourly-time">${hourDisplay}</div>
                 <div class="hourly-icon">
@@ -285,22 +290,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!daily.time) return;
 
+        // Get today's date as YYYY-MM-DD string in local time
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
+
+        let count = 0;
+
         for (let i = 0; i < daily.time.length; i++) {
             const dateStr = daily.time[i];
+
+            // Exclude everything up to and including today to show "Next 5 Days"
+            if (dateStr <= todayStr) {
+                continue;
+            }
+
+            if (count >= 5) break; // Limit to 5 days
             const maxTempC = daily.temperature_2m_max[i];
             const minTempC = daily.temperature_2m_min[i];
             const code = daily.weather_code[i];
-            
+
             // New data fields (with safety checks)
             const precipProb = daily.precipitation_probability_max ? daily.precipitation_probability_max[i] : 0;
             const windSpeedMax = daily.wind_speed_10m_max ? daily.wind_speed_10m_max[i] : 0;
             const sunrise = daily.sunrise ? formatTimeISO(daily.sunrise[i]) : '--:--';
             const sunset = daily.sunset ? formatTimeISO(daily.sunset[i]) : '--:--';
-            
+
             // Format Day Name
             const date = new Date(dateStr);
             const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-            
+
             // Format Temps
             const maxTemp = formatTemp(maxTempC);
             const minTemp = formatTemp(minTempC);
@@ -314,9 +335,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const item = document.createElement('div');
             item.className = 'forecast-item';
-            
+
             // Make the item clickable
-            item.onclick = function() {
+            item.onclick = function () {
                 const details = this.querySelector('.forecast-details');
                 details.classList.toggle('hidden');
                 this.classList.toggle('expanded');
@@ -344,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             forecastList.appendChild(item);
+            count++;
         }
     }
 
@@ -351,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isCelsius) {
             return Math.round(celsius);
         } else {
-            return Math.round((celsius * 9/5) + 32);
+            return Math.round((celsius * 9 / 5) + 32);
         }
     }
 

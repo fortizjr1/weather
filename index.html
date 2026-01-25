@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- SEO Meta Tags -->
-    <title>Simple Weather App | Current Weather & 7-Day Forecast</title>
-    <meta name="description" content="Get real-time weather updates, 7-day forecasts, sunrise/sunset times, and detailed weather metrics for your location. Free, open-source weather app.">
-    <meta name="keywords" content="weather, forecast, weather app, open source weather, temperature, humidity, wind speed, sunrise, sunset, 7 day forecast">
+    <title>Simple Weather App | Current Weather & 5-Day Forecast</title>
+    <meta name="description"
+        content="Get real-time weather updates, 7-day forecasts, sunrise/sunset times, and detailed weather metrics for your location. Free, open-source weather app.">
+    <meta name="keywords"
+        content="weather, forecast, weather app, open source weather, temperature, humidity, wind speed, sunrise, sunset, 7 day forecast">
     <meta name="author" content="Fernando">
     <link rel="canonical" href="https://weather.ortiz.cx/">
 
@@ -15,18 +18,21 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://weather.ortiz.cx/">
     <meta property="og:title" content="Simple Weather App | Current Weather & 7-Day Forecast">
-    <meta property="og:description" content="Get real-time weather updates, 7-day forecasts, sunrise/sunset times, and detailed weather metrics for your location.">
+    <meta property="og:description"
+        content="Get real-time weather updates, 7-day forecasts, sunrise/sunset times, and detailed weather metrics for your location.">
     <meta property="og:image" content="https://openweathermap.org/img/wn/02d@2x.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary">
     <meta property="twitter:url" content="https://weather.ortiz.cx/">
     <meta property="twitter:title" content="Simple Weather App | Current Weather & 7-Day Forecast">
-    <meta property="twitter:description" content="Get real-time weather updates, 7-day forecasts, sunrise/sunset times, and detailed weather metrics for your location.">
+    <meta property="twitter:description"
+        content="Get real-time weather updates, 7-day forecasts, sunrise/sunset times, and detailed weather metrics for your location.">
     <meta property="twitter:image" content="https://openweathermap.org/img/wn/02d@2x.png">
 
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -60,10 +66,11 @@
                     <div class="current-weather">
                         <img id="weather-icon" src="" alt="Weather Icon" class="hidden">
                         <p id="temperature" class="temp">--°C</p>
+                        <p id="high-low" class="high-low">H: --° L: --°</p>
                         <p id="description" class="desc">--</p>
                         <p class="feels-like-text">Feels like <span id="feels-like">--°</span></p>
                     </div>
-                    
+
                     <div class="details-grid">
                         <div class="detail-item">
                             <span class="label">Sunrise</span>
@@ -99,17 +106,18 @@
                     </div>
 
                     <div class="forecast-section">
-                        <h3>7-Day Forecast</h3>
+                        <h3>5-Day Forecast</h3>
                         <div id="forecast-list" class="forecast-list">
                             <!-- Forecast items will be injected here -->
                         </div>
                     </div>
-                    
+
                     <button id="refresh-btn">Refresh</button>
                 </div>
             </div>
         </main>
     </div>
-    <script src="script.js"></script>
+    <script src="script.js?v=4"></script>
 </body>
+
 </html>
