@@ -456,3 +456,22 @@ button:hover {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
 }
+
+@media (max-width: 480px) {
+    body {
+        padding: 0;
+        align-items: flex-start;
+        /* Align to top */
+    }
+
+    .container {
+        max-width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+        min-height: 100vh;
+        max-height: none;
+        /* remove fixed height limit */
+        padding: 20px 15px;
+        /* Slightly less padding on sides */
+    }
+}
