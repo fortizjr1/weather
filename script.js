@@ -28,6 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
     unitToggleBtn.addEventListener('click', toggleUnit);
 
     // Search Events
+    searchBtn.addEventListener('click', handleSearch);
+    locationInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSearch();
+    });
     currentLocationBtn.addEventListener('click', initApp);
 
     function toggleUnit() {
