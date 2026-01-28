@@ -39,6 +39,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+    function handleSearch() {
+        const query = locationInput.value.trim();
+        if (!query) return;
+
+        showLoading();
+        hideError();
+        weatherDataEl.classList.add('hidden');
+
+        getCoordinates(query)
+            .then(coords => {
+                if (!coords) {
+                    throw new Error('Location not found. Please try again.');
+                }
+                const { lat, lon, name } = coords;
+                
+                // Fetch weather and alerts
+                return Promise.all([
+                    fetchWeatherData(lat, lon),
+                    fetchWeatherAlerts(lat, lon)
+                ]).then(([weatherData, alertsData]) => {
+                    currentWeatherData = weatherData;
+                    currentLocationName = name; // Use name from search result
+                    currentAlertsData = alertsData;
+                    updateUI(weatherData, name);
+                    updateAlertsUI(alertsData);
+                });
+            })
+            .catch(error => {
+                showError(error.message || 'Failed to fetch weather data.');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+    }
+
+    async function getCoordinates(query) {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+        
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'User-Agent': 'SimpleWeatherApp/1.0'
+                }
+            });
+            if (!response.ok) return null;
+            const data = await response.json();
+            
+            if (data.length === 0) return null;
+            
+            return {
+                lat: data[0].lat,
+                lon: data[0].lon,
+                name: data[0].display_name.split(',')[0] // Use first part of display name (usually city)
+            };
+        } catch (e) {
+            console.warn('Geocoding failed', e);
+            return null;
+        }
+    }
+
     function initApp() {
         showLoading();
         hideError();
