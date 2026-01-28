@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://weather.ortiz.cx/sitemap.xml
+Sitemap: https://weather.4i4pps.com/sitemap.xml
