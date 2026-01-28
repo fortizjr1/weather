@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentWeatherData = null;
     let currentLocationName = '';
 
-    // Initialize the app (Setup listeners only)
-    // initApp(); // Do not auto-fetch location
+    // Initialize the app (Auto-fetch location)
+    initApp();
 
     refreshBtn.addEventListener('click', () => {
         if (currentWeatherData && currentLocationName) {
