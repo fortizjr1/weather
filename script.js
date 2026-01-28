@@ -6,10 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshBtn = document.getElementById('refresh-btn');
     const unitToggleBtn = document.getElementById('unit-toggle');
     const currentLocationBtn = document.getElementById('current-location-btn');
+    const locationInput = document.getElementById('location-input');
+    const searchBtn = document.getElementById('search-btn');
 
     let isCelsius = false; // Default to Fahrenheit
     let currentWeatherData = null;
     let currentLocationName = '';
+    let currentAlertsData = null;
 
     // Initialize the app (Auto-fetch location)
     initApp();
@@ -79,23 +82,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function getCoordinates(query) {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+        // Use Open-Meteo Geocoding API
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`;
         
         try {
-            const response = await fetch(url, {
-                headers: {
-                    'User-Agent': 'SimpleWeatherApp/1.0'
-                }
-            });
+            const response = await fetch(url);
             if (!response.ok) return null;
             const data = await response.json();
             
-            if (data.length === 0) return null;
+            if (!data.results || data.results.length === 0) return null;
+            
+            const result = data.results[0];
+            // Construct a nice display name: "City, Region, Country"
+            const nameParts = [result.name];
+            if (result.admin1) nameParts.push(result.admin1);
+            else if (result.country) nameParts.push(result.country);
             
             return {
-                lat: data[0].lat,
-                lon: data[0].lon,
-                name: data[0].display_name.split(',')[0] // Use first part of display name (usually city)
+                lat: result.latitude,
+                lon: result.longitude,
+                name: nameParts.join(', ')
             };
         } catch (e) {
             console.warn('Geocoding failed', e);
@@ -163,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(url, {
                 headers: {
-                    'User-Agent': 'SimpleWeatherApp/1.0'
+                    'User-Agent': 'SimpleWeatherApp/1.0 (contact@example.com)'
                 }
             });
             if (!response.ok) return 'Unknown Location';
@@ -186,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(url, {
                 headers: {
-                    'User-Agent': 'SimpleWeatherApp/1.0'
+                    'User-Agent': 'SimpleWeatherApp/1.0 (contact@example.com)'
                 }
             });
             if (!response.ok) {
