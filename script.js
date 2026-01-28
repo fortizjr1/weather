@@ -112,14 +112,17 @@ document.addEventListener('DOMContentLoaded', () => {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
-                // Fetch weather and location name in parallel
+                // Fetch weather, location name, and alerts in parallel
                 Promise.all([
                     fetchWeatherData(latitude, longitude),
-                    fetchLocationName(latitude, longitude)
-                ]).then(([weatherData, locationName]) => {
+                    fetchLocationName(latitude, longitude),
+                    fetchWeatherAlerts(latitude, longitude)
+                ]).then(([weatherData, locationName, alertsData]) => {
                     currentWeatherData = weatherData;
                     currentLocationName = locationName;
+                    currentAlertsData = alertsData;
                     updateUI(weatherData, locationName);
+                    updateAlertsUI(alertsData);
                 }).catch(error => {
                     showError(error.message || 'Failed to fetch data.');
                 }).finally(() => {
