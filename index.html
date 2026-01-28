@@ -64,6 +64,11 @@
                         <h2 id="location-name">Location</h2>
                         <button id="unit-toggle" class="unit-toggle" aria-label="Toggle Unit">°C / °F</button>
                     </div>
+
+                    <div id="advisory-container" class="advisory-container hidden">
+                        <!-- Alerts will be injected here -->
+                    </div>
+
                     <div class="current-weather">
                         <img id="weather-icon" src="" alt="Weather Icon" class="hidden">
                         <p id="temperature" class="temp">--°C</p>
@@ -82,6 +87,10 @@
                             <span id="sunset-time" class="value">--:--</span>
                         </div>
                         <div class="detail-item">
+                            <span class="label">Status</span>
+                            <span id="day-night-status" class="value">--</span>
+                        </div>
+                        <div class="detail-item">
                             <span class="label">Humidity</span>
                             <span id="humidity" class="value">--%</span>
                         </div>
@@ -96,6 +105,10 @@
                         <div class="detail-item">
                             <span class="label">UV Index</span>
                             <span id="uv-index" class="value">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Visibility</span>
+                            <span id="visibility" class="value">--</span>
                         </div>
                     </div>
 

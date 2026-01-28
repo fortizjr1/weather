@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchWeatherData(lat, lon) {
         // Open-Meteo API
         // forecasting 8 days to ensure we have 5 days starting from day after tomorrow
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day,relative_humidity_2m,apparent_temperature,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,weather_code,is_day&timezone=auto&forecast_days=8`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day,relative_humidity_2m,apparent_temperature,wind_speed_10m,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,weather_code,is_day&timezone=auto&forecast_days=8`;
 
         const response = await fetch(url);
         if (!response.ok) {
@@ -109,6 +109,54 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn('Location name fetch failed', e);
             return 'Your Location';
         }
+    }
+
+    async function fetchWeatherAlerts(lat, lon) {
+        // NWS API (Only works for US locations)
+        // Returns null if failed or no alerts found (404/400 for non-US)
+        const url = `https://api.weather.gov/alerts/active?point=${lat},${lon}`;
+        
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'User-Agent': 'SimpleWeatherApp/1.0'
+                }
+            });
+            if (!response.ok) {
+                // Non-US locations will likely return 404 or 400
+                return null; 
+            }
+            return await response.json();
+        } catch (e) {
+            console.warn('Weather alerts fetch failed', e);
+            return null;
+        }
+    }
+
+    function updateAlertsUI(data) {
+        const container = document.getElementById('advisory-container');
+        container.innerHTML = ''; // Clear previous
+        
+        if (!data || !data.features || data.features.length === 0) {
+            container.classList.add('hidden');
+            return;
+        }
+
+        data.features.forEach(feature => {
+            const props = feature.properties;
+            const item = document.createElement('div');
+            item.className = 'advisory-item';
+            
+            // Create inner HTML
+            item.innerHTML = `
+                <span class="advisory-icon">⚠️</span>
+                <span class="advisory-text">${props.event}</span>
+            `;
+            
+            container.appendChild(item);
+        });
+
+        container.classList.remove('hidden');
     }
 
     function updateUI(data, locationName) {
@@ -151,6 +199,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('sunrise-time').textContent = sunriseTime;
         document.getElementById('sunset-time').textContent = sunsetTime;
 
+        // Update Day/Night Status
+        const dayNightStatus = current.is_day ? 'Day' : 'Night';
+        document.getElementById('day-night-status').textContent = dayNightStatus;
+
         // Update Extra Details
         document.getElementById('humidity').textContent = `${current.relative_humidity_2m}%`;
 
@@ -166,6 +218,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Rain Chance (Today's max probability)
         const rainChance = daily.precipitation_probability_max ? daily.precipitation_probability_max[0] : 0;
         document.getElementById('rain-chance').textContent = `${rainChance}%`;
+
+        // Visibility
+        const visibilityMeters = current.visibility;
+        let visibilityDisplay;
+        if (isCelsius) {
+            // km
+            visibilityDisplay = `${(visibilityMeters / 1000).toFixed(1)} km`;
+        } else {
+            // miles
+            visibilityDisplay = `${(visibilityMeters / 1609.34).toFixed(1)} mi`;
+        }
+        document.getElementById('visibility').textContent = visibilityDisplay;
 
         // UV Index
         const uvIndex = daily.uv_index_max ? daily.uv_index_max[0] : 0;
